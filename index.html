@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PermaChat Boot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      color: #00ffff;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .screen {
+      border: 2px solid #00ffff;
+      padding: 24px;
+      width: 640px;
+      max-width: 90%;
+      box-shadow: 0 0 10px #00ffff;
+      background: #000;
+    }
+
+    .screen h1 {
+      color: #00ffff;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .screen p {
+      line-height: 1.5;
+      margin-bottom: 20px;
+      white-space: pre-line;
+    }
+
+    .screen button {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      background: black;
+      color: #00ffff;
+      border: 1px solid #00ffff;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    .screen button:hover {
+      background: #001111;
+    }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <h1>PermaChat: Boot Interface</h1>
+    <p>
+Welcome to the experimental build of PermaChat.
+
+This is a prototype powered by AI, simulating realistic conversations and long-term memory between chatbot users. The project blends retro aesthetics, forum culture, and emotional interaction design.
+
+This chat saves your progress only on this device. Nothing is synced or shared across machines. Future versions may allow cross-device syncing, custom bot personalities, and deeper simulation features.
+
+You're interacting with something that evolves, misfires, and adapts — expect bugs, surprises, and character moments that may not be perfect.
+
+In the future, this will become a platform. For now, it's an experiment.
+
+Proceed if you understand this is a local, developing simulation.
+
+    </p>
+    <button onclick="location.href='login.html'">Continue</button>
+  </div>
+</body>
+</html>

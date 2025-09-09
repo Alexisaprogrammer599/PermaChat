@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>PermaChat Setup - Retro Pixel ASCII</title>
+
+<!-- Using "Press Start 2P" from Google Fonts for pixelated arcade look -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+  /* Base & pixelated text setup */
+  html, body {
+    margin: 0; padding: 0;
+    background: #008080;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Press Start 2P', monospace, 'Courier New', monospace;
+    font-size: 9px;
+    color: #000;
+    user-select: none;
+
+    /* Disable smoothing */
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
+    image-rendering: pixelated;
+    text-rendering: geometricPrecision;
+  }
+
+  .window {
+    background: #C0C0C0;
+    width: 480px;
+    border: 2px solid black;
+    box-sizing: border-box;
+
+    /* Classic Windows 3.1 3D border effect */
+    box-shadow:
+      inset 1px 1px 0 #FFFFFF,
+      inset -1px -1px 0 #808080;
+  }
+
+  .title-bar {
+    background: #000080;
+    color: white;
+    font-weight: 700;
+    padding: 4px 8px;
+    height: 20px;
+    line-height: 20px;
+    user-select: none;
+    border-bottom: 2px solid black;
+  }
+
+  .content {
+    padding: 12px 16px 20px 16px;
+    background: #C0C0C0;
+  }
+
+  .group-box {
+    border: 2px solid #808080;
+    box-shadow:
+      inset 1px 1px 0 #FFFFFF,
+      inset -1px -1px 0 #404040;
+    padding: 8px 12px;
+    margin-top: 14px;
+  }
+
+  label {
+    display: block;
+    margin: 6px 0 4px 2px;
+  }
+
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    font-family: 'Press Start 2P', monospace, 'Courier New', monospace;
+    font-size: 9px;
+    padding: 4px 6px;
+    border: 2px solid black;
+    background: white;
+    box-sizing: border-box;
+
+    /* pixel crisp */
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
+    image-rendering: pixelated;
+    text-rendering: geometricPrecision;
+  }
+
+  .button {
+    font-family: 'Press Start 2P', monospace, 'Courier New', monospace;
+    font-size: 9px;
+    padding: 6px 14px;
+    margin-right: 10px;
+    border: 2px solid black;
+    background: #C0C0C0;
+    box-shadow:
+      2px 2px 0 #404040,
+      -2px -2px 0 #FFFFFF;
+    cursor: pointer;
+    user-select: none;
+
+    /* Disable smoothing */
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
+    image-rendering: pixelated;
+    text-rendering: geometricPrecision;
+  }
+
+  .button:active {
+    box-shadow:
+      inset 1px 1px 0 #404040,
+      inset -1px -1px 0 #FFFFFF;
+    outline: none;
+  }
+
+  .disclaimer {
+    margin-top: 10px;
+    font-size: 7px;
+    color: red;
+    text-decoration: underline;
+    user-select: text;
+  }
+</style>
+</head>
+
+<body>
+  <div class="window" id="loginWindow" role="dialog" aria-labelledby="titleBar" aria-modal="true">
+    <div class="title-bar" id="titleBar">PermaChat Setup</div>
+    <div class="content">
+      <h3 style="margin-top:0; margin-bottom:12px; font-weight: normal; font-size: 10px;">
+        Welcome to PermaChat Setup
+      </h3>
+      <p style="font-size: 8px; margin:0 0 10px 0;">
+        This wizard helps you set up your chat profile.
+      </p>
+
+      <div class="group-box">
+        <label for="username">USERNAME:</label>
+        <input type="text" id="username" autocomplete="off" spellcheck="false" />
+
+        <label for="password">PASSWORD:</label>
+        <input type="password" id="password" autocomplete="off" spellcheck="false" />
+
+        <div style="margin-top:14px;">
+          <button class="button" id="btnLogin">LOGIN</button>
+          <button class="button" id="btnRegister">REGISTER</button>
+          <button class="button" id="btnGuest">GUEST</button>
+        </div>
+
+        <div class="disclaimer" title="Local storage only, not synced across devices.">
+          ⚠ ACCOUNTS ARE STORED ONLY ON THIS DEVICE.
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const loginWindow = document.getElementById("loginWindow");
+  const usernameInput = document.getElementById("username");
+  const passwordInput = document.getElementById("password");
+
+  function startProgress(callback) {
+    loginWindow.style.pointerEvents = "none";
+    alert("Configuring your PermaChat environment...");
+    setTimeout(() => {
+      callback();
+    }, 1500);
+  }
+
+  document.getElementById("btnLogin").onclick = () => {
+    const users = JSON.parse(localStorage.getItem("users") || "{}");
+    const user = usernameInput.value.trim().toUpperCase();
+    const pass = passwordInput.value;
+    if (users[user] && users[user] === pass) {
+      localStorage.setItem("currentUser", user);
+      startProgress(() => location.href = "chat.html");
+    } else {
+      alert("INVALID LOGIN.");
+    }
+  };
+
+  document.getElementById("btnRegister").onclick = () => {
+    const users = JSON.parse(localStorage.getItem("users") || "{}");
+    const user = usernameInput.value.trim().toUpperCase();
+    const pass = passwordInput.value;
+    if (!user || !pass) return alert("ENTER BOTH FIELDS.");
+    if (users[user]) return alert("USER ALREADY EXISTS.");
+    users[user] = pass;
+    localStorage.setItem("users", JSON.stringify(users));
+    localStorage.setItem("currentUser", user);
+    startProgress(() => location.href = "chat.html");
+  };
+
+  document.getElementById("btnGuest").onclick = () => {
+    localStorage.setItem("currentUser", "GUEST_" + Date.now());
+    startProgress(() => location.href = "chat.html");
+  };
+</script>
+</body>
+</html>

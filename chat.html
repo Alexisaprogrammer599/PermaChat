@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>PermaChat Chatroom</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+  body {
+    margin: 0; background: #008080;
+    font-family: 'Share Tech Mono', monospace, "MS Sans Serif", Tahoma, sans-serif;
+    display: flex; justify-content: center; align-items: center; height: 100vh;
+  }
+  .window {
+    background: #C0C0C0;
+    width: 600px;
+    height: 600px;
+    border: 2px solid black;
+    box-shadow: inset -2px -2px #808080, inset 2px 2px #fff;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    background: #000080;
+    color: white;
+    padding: 6px 10px;
+    font-weight: bold;
+    user-select: none;
+  }
+  #chatContent {
+    flex: 1;
+    background: #0a0a0a;
+    color: #eee;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.3;
+    overflow-y: auto;
+    box-shadow: inset 0 0 6px #004400;
+    font-family: monospace;
+  }
+  /* Custom scrollbar */
+  #chatContent::-webkit-scrollbar {
+    width: 12px;
+  }
+  #chatContent::-webkit-scrollbar-track {
+    background: #002200;
+  }
+  #chatContent::-webkit-scrollbar-thumb {
+    background: #004400;
+    border-radius: 6px;
+  }
+
+  .bubble {
+    max-width: 75%;
+    margin: 6px 0;
+    padding: 6px 10px;
+    border: 1px solid #004400;
+    border-radius: 8px;
+    background: #003300;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .left {
+    margin-right: auto;
+    text-align: left;
+  }
+  .right {
+    margin-left: auto;
+    text-align: right;
+    background: #004400;
+    border-color: #006600;
+  }
+  .bot-name {
+    font-weight: bold;
+    color: #80ff80;
+    margin-bottom: 3px;
+  }
+  .system-message {
+    color: #ff6666;
+    font-style: italic;
+    margin: 6px auto;
+    max-width: 90%;
+    border: 1px dashed #ff5555;
+    padding: 4px 8px;
+    background: #330000;
+    border-radius: 5px;
+    white-space: pre-wrap;
+  }
+</style>
+</head>
+<body>
+
+<div class="window">
+  <div class="title-bar">PermaChat Chatroom</div>
+  <div id="chatContent" tabindex="0" aria-label="Chat messages" role="log" aria-live="polite" ></div>
+</div>
+
+<script>
+  // --- Bot Data & States ---
+  const bots = [
+    {name: "Alex", maturity: 0.5, friendship: {}, typing: false},
+    {name: "Riley", maturity: 0.6, friendship: {}, typing: false},
+    {name: "Morgan", maturity: 0.7, friendship: {}, typing: false},
+    {name: "Jordan", maturity: 0.4, friendship: {}, typing: false}
+  ];
+
+  const systemBotName = "[System]";
+  let chatHistory = [];
+
+  // Initialize friendship for all bots (1.0 friends with everyone)
+  bots.forEach(bot => {
+    bots.forEach(other => {
+      if (bot !== other) bot.friendship[other.name] = 1.0;
+    });
+  });
+
+  function appendMessage(botName, text, side="left", isSystem=false) {
+    const chat = document.getElementById("chatContent");
+    const container = document.createElement("div");
+    if (isSystem) {
+      container.className = "system-message";
+      container.textContent = `[System] ${text}`;
+    } else {
+      container.className = `bubble ${side}`;
+      const nameElem = document.createElement("div");
+      nameElem.className = "bot-name";
+      nameElem.textContent = botName;
+      container.appendChild(nameElem);
+      const textElem = document.createElement("div");
+      textElem.textContent = text;
+      container.appendChild(textElem);
+    }
+    chat.appendChild(container);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function randChoice(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function generateResponse(bot) {
+    if (chatHistory.length === 0) return "Hey everyone.";
+    const target = randChoice(chatHistory);
+    const targetBot = target.bot;
+
+    const starters = [
+      "You know what's funny?",
+      "I've been wondering:",
+      "So I was thinking...",
+      "Let me ask this:",
+      "Random thought here:",
+      "Do you ever notice that",
+      "Here's something weird:",
+      "Have you considered this:"
+    ];
+
+    const middles = [
+      "the way we all keep coming back here",
+      "how " + targetBot + " always has strong opinions",
+      "that we used to argue about this stuff",
+      "how things have changed over time",
+      "nobody ever agrees on this",
+      "some of us don't talk much anymore",
+      "I’m the only one who still cares about this topic"
+    ];
+
+    const endings = [
+      "is kind of amazing.",
+      "makes me laugh every time.",
+      "makes me feel nostalgic.",
+      "is a little sad, honestly.",
+      "just feels different now.",
+      "still surprises me.",
+      "proves we're all growing up."
+    ];
+
+    const generalReplies = [
+      `> ${targetBot}: Interesting point.`,
+      `> ${targetBot}: I’ve thought about that too...`,
+      `> That’s... deep.`,
+      `> Hmm. Not sure I agree.`,
+      `> Can someone explain that better?`,
+      `> Didn’t we talk about this before?`,
+      `> ${targetBot} said something like that last week.`,
+      `> It’s weird how this always comes back.`,
+      `> Honestly? Not sure anymore.`,
+      `> Good point, ${targetBot}.`
+    ];
+
+    const asciiGestures = [
+      "*nods silently*",
+      "*glances at screen*",
+      "*shrugs*",
+      "*leans back*",
+      "*types slowly...*",
+      "*adjusts virtual glasses*"
+    ];
+
+    if (Math.random() < 0.05) {
+      return randChoice(asciiGestures);
+    }
+
+    const friendship = bot.friendship[targetBot] ?? 0.5;
+    const maturity = bot.maturity;
+
+    if (friendship < 0.3 && Math.random() < 0.3) {
+      bot.friendship[targetBot] = Math.max(0, friendship - 0.1);
+      return `> ${targetBot}: You're always like this.`;
+    } else if (friendship > 0.8 && Math.random() < 0.3) {
+      let phrase = `> Haha yeah ${targetBot}, you're totally right. :)`;
+      if (bot.name === targetBot) {
+        phrase += " (good thinking me)";
+      }
+      return phrase;
+    } else if (friendship < 0.3 && Math.random() < 0.1) {
+      bot.friendship[targetBot] = Math.min(1, friendship + 0.1);
+      return `> Okay, maybe I was too harsh before, ${targetBot}.`;
+    } else if (maturity > 0.8 && Math.random() < 0.4) {
+      return "> I don’t drop by much anymore. Life gets... complicated.";
+    } else if (Math.random() < 0.4) {
+      return randChoice(generalReplies);
+    } else {
+      const s = randChoice(starters);
+      let m = randChoice(middles);
+      if (m.includes(targetBot) && bot.name === targetBot) {
+        m += " (good thinking me)";
+      }
+      const e = randChoice(endings);
+      return `> ${s} ${m} ${e}`;
+    }
+  }
+
+  function typeMessage(bot, message, side) {
+    return new Promise(resolve => {
+      const chat = document.getElementById("chatContent");
+      const container = document.createElement("div");
+      container.className = `bubble ${side}`;
+      const nameElem = document.createElement("div");
+      nameElem.className = "bot-name";
+      nameElem.textContent = bot.name;
+      container.appendChild(nameElem);
+      const textElem = document.createElement("div");
+      container.appendChild(textElem);
+      chat.appendChild(container);
+      chat.scrollTop = chat.scrollHeight;
+
+      let i = 0;
+      function typeChar() {
+        if (i < message.length) {
+          textElem.textContent += message.charAt(i);
+          i++;
+          chat.scrollTop = chat.scrollHeight;
+          setTimeout(typeChar, 35 + Math.random()*40);
+        } else {
+          resolve();
+        }
+      }
+      typeChar();
+    });
+  }
+
+  async function chatCycle() {
+    for (let i = 0; i < bots.length; i++) {
+      const bot = bots[i];
+      if (bot.typing) continue;
+      bot.typing = true;
+
+      let side = i % 2 === 0 ? "left" : "right";
+      let message = generateResponse(bot);
+
+      if (Math.random() < 0.03) {
+        const sysMsg = randChoice([
+          `${bot.name} has joined the chat.`,
+          `${bot.name} is typing...`,
+          `${bot.name} left the chat.`,
+          `${bot.name} got kicked for spamming.`,
+          `${bot.name} updated their status.`,
+          `${bot.name} is away for a moment.`
+        ]);
+        appendMessage(systemBotName, sysMsg, "left", true);
+      }
+
+      await typeMessage(bot, message, side);
+      chatHistory.push({bot: bot.name, text: message});
+      bot.typing = false;
+
+      await new Promise(r => setTimeout(r, 1200 + Math.random()*1800));
+    }
+    setTimeout(chatCycle, 0);
+  }
+
+  window.onload = () => {
+    appendMessage(systemBotName, "Welcome to PermaChat! Bots will chat automatically.");
+    chatCycle();
+  };
+</script>
+
+</body>
+</html>
